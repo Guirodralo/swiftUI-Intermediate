@@ -32,19 +32,41 @@ struct ProfileView: View {
                     }
                 }
                 
+                //MARK: Personal Info Section
                 Section("Personal Info") {
                     
                     TextField("Nickname", text: $viewModel.nickNameField, onCommit: {
                         focusedField = .email
                     })
-                        .focused($focusedField, equals: .nickName)
-//                        .textFieldStyle(.roundedBorder)
+                    .focused($focusedField, equals: .nickName)
+                    //                        .textFieldStyle(.roundedBorder)
+                    
+                    
                     TextField("Email", text: $viewModel.emailField, onCommit: {
                         focusedField = nil
                     })
-                        .focused($focusedField, equals: .email)
+                    .onSubmit {
+                        viewModel.emailDidSubmit()
+                    }
+                    .foregroundStyle(viewModel.emailForegroundStyle)
+                    .focused($focusedField, equals: .email)
                     
                     
+                    DatePicker("DOB", selection: $viewModel.date, displayedComponents: .date)
+                        .datePickerStyle(.graphical)
+                    
+                }
+                
+                //MARK: Role Section
+                Section("Role") {
+                    
+                    Picker("Preferred Role", selection: $viewModel.ExpertiseLevelType) {
+                        ForEach(ExpertiseLevelType.allCases, id: \.self) {
+                            Text($0.rawValue)
+                        }
+                        
+                    }
+                    .pickerStyle(.menu)
                 }
                 
                 .navigationBarTitle("Profile", displayMode: .inline)

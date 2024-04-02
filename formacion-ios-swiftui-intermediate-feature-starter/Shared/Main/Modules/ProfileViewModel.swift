@@ -17,6 +17,16 @@ extension ProfileView {
         //TextField States
         @Published var nickNameField = ""
         @Published var emailField = ""
+        @Published var emailForegroundStyle = Color.black
+        
+        //Picker Satates
+        @Published var date = Date()
+        @Published var ExpertiseLevelType: ExpertiseLevelType = .junior
+        
+        
+        func emailDidSubmit() {
+            emailForegroundStyle = emailField.isEmailValid() ? .blue : .red
+        }
         
         
     }
@@ -24,6 +34,23 @@ extension ProfileView {
 
 
 enum FocusedField {
-case nickName, email, datePicker
+    case nickName, email, datePicker
 }
 
+enum ExpertiseLevelType: String, CaseIterable {
+    case junior
+    case analyst
+    case expert
+}
+
+
+extension String {
+    public func isEmailValid() -> Bool {
+        guard !isEmpty else {
+            return false
+        }
+        // TODO: type.regex en utils
+        let regTest = NSPredicate(format: "SELF MATCHES %@", "[\\w.\\-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}")
+        return regTest.evaluate(with: self)
+    }
+}
