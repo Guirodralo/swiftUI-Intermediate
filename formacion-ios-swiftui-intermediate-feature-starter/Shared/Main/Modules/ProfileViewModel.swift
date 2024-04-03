@@ -13,6 +13,12 @@ extension ProfileView {
     @MainActor class ViewModel: ObservableObject {
         @Published var navigationIsActive = false
         @Published var navigationText = "Tap me and modify text 🥷"
+        @Published var isShowingConfirmationDialog = false
+        @Published var isShowingConfirmationAlert = false
+        
+        //IMAGE PICKER STATES
+        @Published var avatarImage = UIImage(named: "DefaultAvatarImage")!
+        @Published var isShowingPhotoPicker = false
         
         //TextField States
         @Published var nickNameField = ""
@@ -22,12 +28,30 @@ extension ProfileView {
         //Picker Satates
         @Published var date = Date()
         @Published var ExpertiseLevelType: ExpertiseLevelType = .junior
-        
+        @Published var colorScheme: ColorScheme = .light
+        @Published var playNotificationSound = false
+        @Published var backGroundColor = Color.accentColor.opacity(0.2)
         
         func emailDidSubmit() {
             emailForegroundStyle = emailField.isEmailValid() ? .blue : .red
         }
         
+        
+        func segmentedControllerDidChanged(_ type: ExpertiseLevelType) {
+            
+            print(type.rawValue)
+            
+            switch type {
+            case .junior:
+                colorScheme = .light
+            case .analyst:
+                colorScheme = .light
+            case .expert:
+                colorScheme = .dark
+            }
+            
+            
+        }
         
     }
 }

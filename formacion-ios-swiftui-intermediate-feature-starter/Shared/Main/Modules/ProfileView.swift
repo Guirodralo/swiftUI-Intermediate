@@ -15,8 +15,27 @@ struct ProfileView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            VStack(spacing: 0) {
+                Image(uiImage: viewModel.avatarImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 150, height: 150)
+                    .clipShape(Circle())
+                    .padding()
+                    .onTapGesture {
+                        viewModel.isShowingPhotoPicker = true
+                    }
+                
+            }
+            .frame(maxWidth: .infinity)
+            .background(viewModel.backGroundColor)
             
             Form {
+                
+                TextField("Nickname", text: $viewModel.nickNameField, onCommit: {
+                    focusedField = .email
+                })
+                .focused($focusedField, equals: .nickName)
                 
                 //MARK: - Section Navigation
                 Section("Navigation") {
@@ -32,7 +51,7 @@ struct ProfileView: View {
                     }
                 }
                 
-                //MARK: Personal Info Section
+                //MARK: - Personal Info Section
                 Section("Personal Info") {
                     
                     TextField("Nickname", text: $viewModel.nickNameField, onCommit: {
@@ -53,11 +72,11 @@ struct ProfileView: View {
                     
                     
                     DatePicker("DOB", selection: $viewModel.date, displayedComponents: .date)
-                        .datePickerStyle(.graphical)
+                        .datePickerStyle(.compact)
                     
                 }
                 
-                //MARK: Role Section
+                //MARK: - Role Section
                 Section("Role") {
                     
                     Picker("Preferred Role", selection: $viewModel.ExpertiseLevelType) {
@@ -66,16 +85,71 @@ struct ProfileView: View {
                         }
                         
                     }
-                    .pickerStyle(.menu)
+                    .pickerStyle(.segmented)
+                    //                    .pickerStyle(.menu)
+                    //                    .pickerStyle(.inline)
+                    //                    .pickerStyle(.wheel)
                 }
                 
-                .navigationBarTitle("Profile", displayMode: .inline)
+                //MARK: - Preferences section
+                Section("Preferences") {
+                    Toggle("Play notification sounds", isOn: $viewModel.playNotificationSound)
+                    ColorPicker("Set favourite color", selection: $viewModel.backGroundColor)
+                }
             }
+            //.scrollContentBackground(.hidden)
+            
+            //MARK: - Save button
+            Button {
+//                viewModel.isShowingConfirmationDialog = true
+                viewModel.isShowingConfirmationAlert = true
+            } label: {
+                Text("Save Data")
+                    .font(.system(size: 19, weight: .semibold))
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(PrimaryButtonStyle(bgColor: .accentColor))
+            .padding()
         }
+        .ignoresSafeArea(.keyboard)
+        
+        //MARK: - PRESENT PHOTO PICKER
+        .sheet(isPresented: $viewModel.isShowingPhotoPicker, content: {
+            PhotoPicker.init(avatarImage: $viewModel.avatarImage)
+        })
+        
+        
+        
+        
+        
+        //MARK: Alerts
+        .alert(isPresented: $viewModel.isShowingConfirmationAlert, content: {
+//            Alert(title: Text("Saving Data"), message: Text("Do you want apply changes?"), dismissButton: .default(Text("OK")))
+            
+            Alert(title: Text("Saving Data"), message: Text("Do you want apply changes?"), primaryButton: .destructive(Text("Not Yet")), secondaryButton: .default(Text("Sure"), action: {
+                print("Saving Changes...")
+            }))
+        })
+        
+        //MARK: Activity Sheet Is Really a confirmation Dialog
+        .confirmationDialog("Do you want to apply changes?", isPresented: $viewModel.isShowingConfirmationDialog, titleVisibility: .visible) {
+            
+            Button("Sure") {
+                print("Saving Changes")
+            }
+            
+        }
+        
+        
+        .onChange(of: viewModel.ExpertiseLevelType, perform: { newValue in
+            viewModel.segmentedControllerDidChanged(newValue)
+        })
+        .preferredColorScheme(viewModel.colorScheme)
+        .navigationBarTitle("Profile", displayMode: .inline)
     }
 }
 
-//MARK: NavigationViewExample
+//MARK: - NavigationViewExample
 struct NavigationViewExample: View {
     @Binding var isActive: Bool
     @Binding var fieldText: String
