@@ -30,7 +30,7 @@ struct AlbumsListEntity: Codable {
 }
 
 // MARK: DOMAIN
-struct AlbumItem:  Identifiable, Hashable {
+struct AlbumItem:  Identifiable, Equatable {
     let id = UUID()
     let artistName: String?
     let collectionName: String?

@@ -12,8 +12,26 @@ struct SwiftUI_IntermediateApp: App {
     
     var body: some Scene {
         WindowGroup {
-            NavigationView {
-                ProfileView()
+            TabView {
+                
+                AlbumListView()
+                    .tabItem {
+                        Label("Albums", systemImage: "list.dash")
+                    }
+                
+                FavouritesListView()
+                    .tabItem {
+                        Label("Favourites", systemImage: "heart")
+                    }
+                
+                
+                
+                NavigationView {
+                    ProfileView()
+                }
+                .tabItem {
+                    Label("Profile", systemImage: "person")
+                }
             }
         }
     }
