@@ -27,12 +27,24 @@ struct AlbumListView: View {
     var body: some View {
         NavigationView {
             List {
-                ForEach(albumList, id: \.id) {item in
-                    AlbumRow(album: item)
+                ForEach(searchResults, id: \.id) {item in
+                    buildRow(isAlbumRow: item.artistName != "placeholder01", item: item)
                 }
             }
-            .task {
+            .refreshable {
                 await fetchData()
+            }
+            //            .task {
+            //                await fetchData()
+            //            }
+            
+            .searchable(text: $searchText) {
+                ForEach(searchResults, id: \.id) { result in
+                    Text("Are you looking for \(result.collectionName ?? "")?")
+                        .searchCompletion(result.collectionName ?? "")
+                }
+                .disabled(isOnPlaceholder ? true: false)
+                
             }
             .navigationTitle("Marvin Data")
         }
@@ -55,6 +67,35 @@ struct AlbumListView: View {
             // Error
             albumList = []
         }
+    }
+    
+    // MARK: BINDING
+    private func binding(for album: AlbumItem) -> Binding<AlbumItem> {
+        guard let albumIndex = albumList.firstIndex(where: { $0.id == album.id }) else {
+            fatalError("Can't find album in array")
+        }
+        return $albumList[albumIndex]
+    }
+    
+    //MARK: VIEW BUILDER
+    @ViewBuilder func buildRow(isAlbumRow: Bool, item: AlbumItem) -> some View {
+        if isAlbumRow {
+            NavigationLink(destination: AlbumDetailView(album: binding(for: item))) {
+                AlbumRow(album: item)
+                    .id(item.id)
+                    .redacted(reason: isOnPlaceholder ? .placeholder : [])
+            }
+            .disabled(isOnPlaceholder ? true : false)
+            .swipeActions {
+                Button("Remove", role: .destructive) {
+                    albumList.removeAll(where: { $0.id == item.id})
+                }
+            }
+        } else {
+            Text("⬇️Pull to refresh⬇️")
+        }
+        
+        
     }
 }
 
